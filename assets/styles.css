@@ -1,0 +1,108 @@
+/* styles.css */
+
+:root {
+    --dark-black:#000000;
+    --off-black:#333333;
+    --highlight:#ff0000;        
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 100%;
+  margin: 40px;
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+
+a,
+a:visited {
+   color: var(--dark-black);
+}
+
+a:hover {
+    color: var(--highlight);
+}
+
+.pre-work {
+    margin-bottom: 1rem;
+}
+
+.pre-work p {
+    margin: 0;
+}
+
+.text-section {
+    font-family: Georgia;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    color: var(--off-black);
+}
+
+.page-home h1 {
+    font-size: 2.6em;
+}
+
+.work-page .text-section {
+    max-width: 46rem; 
+} 
+
+.text-section p {
+    margin-top: 0;
+}
+
+@media screen and (min-width: 800px) {
+    .flowing-grid {
+        /* Apply some styles */
+        column-count: 2;
+        column-rule: 15px solid white;
+        column-gap:  40px;
+    }
+} 
+
+@media screen and (min-width: 1200px) {
+    .flowing-grid {
+        /* Apply some styles */
+        column-count: 3;
+        column-gap:  55px;
+    }
+} 
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+    margin: 0;
+    padding: 0;
+}
+
+li.active a {font-weight: bold;}
+
+a.arrow-link {
+    text-decoration: none;
+    color: var(--highlight);
+}
+
+h1 {
+    line-height: 2rem;
+}
+
+h2 {
+    line-height: 1.3em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--dark-black);
+    margin: 0;
+}
+
+.as_h3 {
+    font-size: 1.3em;
+}

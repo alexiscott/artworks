@@ -1,0 +1,40 @@
+/* Grid system */
+.grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.work-page .grid {
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.grid-item {
+    padding: 10px;
+}
+
+.image-container img {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 2fr;
+        gap: 20px;
+    }
+}
+
+nav {
+    text-align: right;
+    max-width: 60rem;
+    margin-bottom: 4rem;
+}
+
+ul.navigation li {
+    display: inline;
+    padding-right: 20px;
+}
