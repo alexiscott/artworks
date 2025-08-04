@@ -82,7 +82,7 @@ renderWorkPage work mc = docTypeHtml $ do
 renderHomepage :: H.Html
 renderHomepage = docTypeHtml $ do
   H.head $ do
-    H.title "Homepage | Joe Bloggs Online Catalogue Raisonné"
+    H.title "Homepage | Joe Blogs' Online Catalogue Raisonné"
     link ! rel "stylesheet" ! href "styles.css"
     link ! rel "stylesheet" ! href "grid.css"
   body $ do
@@ -91,7 +91,7 @@ renderHomepage = docTypeHtml $ do
       H.div $ do
         h1 "Joe Bloggs"
         h2 "Online catalogue Raisonné"
-        img ! src "images/118.jpg" ! width "260px"
+        img ! src "images/sheet_of_studies_recto_1991.217.2.a.jpg" ! width "260px"
     footer $ p "© 2025 Joe Bloggs Foundation"
 
 renderAbout :: H.Html -> H.Html -> H.Html
