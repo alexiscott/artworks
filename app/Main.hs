@@ -14,160 +14,100 @@ import Text.Blaze.Html5.Attributes as A
 import Prelude hiding (div)
 import Data.List (sortOn)
 
+-- Replace these with the represented artist name.
+artistsName :: H.Html
+artistsName = "Oliver Twist"
+
+
+-- Page configuration data type
+data PageConfig = PageConfig
+  { pageTitle :: H.Html
+  , activeNavIndex :: Int
+  , regions :: [Region]
+  }
+
+data Region
+  = NavigationRegion
+  | HeaderRegion
+  | PreWorkRegion Work
+  | ContentRegion (H.Html -> H.Html)
+  | WorksGridRegion [Work]
+  | ChronologyRegion (H.Html -> H.Html)
+  | FooterRegion
+-- Navigation items
+navItems :: [(String, AttributeValue)]
+navItems =
+  [ ("Home", "/index.html")
+  , ("About", "/about.html")
+  , ("Chronology", "/chronology.html")
+  , ("Works", "/works.html")
+  , ("Search", "/search.html")
+  ]
+
+-- Main render function
+renderPage :: PageConfig -> H.Html
+renderPage config = docTypeHtml $ do
+  H.head $ do
+    H.title (pageTitle config <> " | " <> artistsName <> " Online Catalogue Raisonné")
+    meta ! charset "utf-8"
+    link ! rel "stylesheet" ! href "styles.css"
+    link ! rel "stylesheet" ! href "grid.css"
+    link ! rel "stylesheet" ! href "works.css" -- Possibly make specific.
+    -- Additional stylesheets can be added conditionally here
+  body ! class_ "page" $ do
+    mapM_ renderRegion (regions config)
+    where
+      renderRegion :: Region -> H.Html
+      renderRegion region = case region of
+        NavigationRegion ->
+          nav ! class_ "navigation-region" $ navigation (activeNavIndex config)
+
+        HeaderRegion ->
+          header ! class_ "header-region" $ do
+            p $ do
+              a ! href "/" ! alt "Back works"
+                ! A.title "Back to works"
+                ! class_ "arrow-link" $ "⬅ Back to works"
+
+        PreWorkRegion work ->
+          H.div ! class_ "pre-work-region" $ do
+            h2 ! class_ "as_h3 work-catnum" $ toHtml (catalogueNumber work)
+            h1 ! class_ "as_h3 work-title" $ toHtml (workTitle work)
+            h2 ! class_ "as_h3 work-date" $ toHtml (date work)
+            p ! class_ "work-medium" $ toHtml (medium work)
+            p ! class_ "work-size" $ toHtml (dimensions work)
+            p ! class_ "work-signature" $ toHtml (signature work)
+            p ! class_ "work-location" $ toHtml (location work)
+            p ! class_ "work-extra" $ do
+              a ! href "/" $ "Provenance"
+              ", "
+              a ! href "/" $ "Exhibitions"
+
+        ContentRegion contentFn ->
+           H.div $ contentFn  $ H.strong "We have no content here yet."
+
+        WorksGridRegion worksList ->
+          H.div ! class_ "works-grid-region" $
+            mapM_ renderWorkThumbnail (sortWorks worksList)
+
+        ChronologyRegion contentFn ->
+          H.div ! class_ "chronology-region" $ contentFn "lorem"
+
+        FooterRegion ->
+          footer ! class_ "footer-region" $ p ("© 2025 " <> artistsName <> " Foundation")
+
+-- Navigation component
 navigation :: Int -> Html
 navigation activeIndex =
-  nav $ ul ! class_ "navigation" $ mconcat $
+  ul ! class_ "navigation" $ mconcat $
     zipWith renderItem [0..] navItems
   where
-    navItems :: [(String, AttributeValue)]
-    navItems =
-      [ ("Home", "/index.html")
-      , ("About", "/about.html")
-      , ("Chronology", "/chronology.html")
-      , ("Works", "/works.html")
-      , ("Search", "/search.html")
-      ]
-
     renderItem :: Int -> (String, AttributeValue) -> Html
-    renderItem idx (label, url) =
+    renderItem idx (lab, url) =
       (if idx == activeIndex then li ! class_ "active" else li) $
-        a ! href url $ toHtml label
+        a ! href url $ toHtml lab
 
-mainContent :: Work -> H.Html -> H.Html
-mainContent work lorem = do
-  H.div ! class_ "grid" $ do
-    -- First column: Image section
-    H.div ! class_ "grid-item" $ do
-      H.div ! class_ "image-container" $
-        workImage work
-    -- Second column: Text section
-    H.div ! class_ "grid-item text-section" $ do
-      lorem
-
-workImage :: Work -> H.Html
-workImage work =
-  img
-    ! src (toValue $ "images/" ++ show (catalogueNumber work) ++ ".jpg")
-    ! alt (toValue $ "Artwork: " ++ workTitle work)
-    ! class_ "artwork-image"
-
-renderWorkPage :: Work -> H.Html -> H.Html
-renderWorkPage work mc = docTypeHtml $ do
-  H.head $ do
-    H.title $ toHtml (workTitle work <> " | Joe Bloggs Online Catalogue Raisonné")
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-  body ! class_ "work-page" $ do
-    navigation 2
-    header $ do
-      p $ do
-        a ! href "/" ! alt "Back works"
-          ! A.title "Back to works"
-          ! class_ "arrow-link" $ "⬅ Back to works"
-    H.div ! class_ "pre-work" $ do
-      h2 ! class_ "as_h3 work-catnum" $ toHtml (catalogueNumber work)
-      h1 ! class_ "as_h3 work-title" $ toHtml (workTitle work)
-      h2 ! class_ "as_h3 work-date" $ toHtml (date work)
-      p ! class_ "work-medium" $ toHtml (medium work)
-      p ! class_ "work-size" $ toHtml (dimensions work)
-      p ! class_ "work-signature" $ toHtml (signature work)
-      p ! class_ "work-location" $ toHtml (location work)
-      p ! class_ "work-extra" $ do
-        a ! href "/" $ "Provenance"
-        ", "
-        a ! href "/" $ "Exhibitions"
-    mc
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
-renderHomepage :: H.Html
-renderHomepage = docTypeHtml $ do
-  H.head $ do
-    H.title "Homepage | Joe Blogs' Online Catalogue Raisonné"
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-  body $ do
-    navigation 0
-    H.div ! class_ "page-home" $ do
-      H.div $ do
-        h1 "Joe Bloggs"
-        h2 "Online catalogue Raisonné"
-        img ! src "images/sheet_of_studies_recto_1991.217.2.a.jpg" ! width "260px"
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
-renderAbout :: H.Html -> H.Html -> H.Html
-renderAbout pageTitle c = docTypeHtml $ do
-  H.head $ do
-    H.title "Joe Bloggs Online Catalogue Raisonné"
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-  body $ do
-    navigation 1
-    header $ h1 $ toHtml pageTitle
-    H.div ! class_ "flowing-grid text-section" $ do
-      H.div $ do
-        p $ do
-          "About Joe's artwork."
-        c
-
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
-renderChronology :: H.Html -> H.Html
-renderChronology content = docTypeHtml $ do
-  H.head $ do
-    H.title "Chronology | Joe Bloggs Online Catalogue Raisonné"
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-  body $ do
-    navigation 2
-    header $ h1 "Chronology 1913-1989"
-    H.div ! class_ "chronology-container" $ do
-      H.div ! class_ "chronology-intro" $ do
-        p "This chronology presents the key events in Joe Bloggs's life and career."
-      H.div ! class_ "chronology-content" $ do
-        content
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
-renderSimpleLayout :: H.Html -> H.Html -> H.Html
-renderSimpleLayout pageTitle c = docTypeHtml $ do
-  H.head $ do
-    H.title "Joe Bloggs Online Catalogue Raisonné"
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-  body $ do
-    navigation 3
-    header $ h1 $ toHtml pageTitle
-    H.div ! class_ "flowing-grid text-section" $ do
-      H.div $ do
-        c
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
-
-
-
-    {-# LANGUAGE OverloadedStrings #-}
-
--- ... (keep all existing imports and other code)
-
-renderWorksPage :: [Work] -> H.Html
-renderWorksPage allWorks = docTypeHtml $ do
-  H.head $ do
-    H.title "Works | Joe Bloggs Online Catalogue Raisonné"
-    link ! rel "stylesheet" ! href "styles.css"
-    link ! rel "stylesheet" ! href "grid.css"
-    link ! rel "stylesheet" ! href "works.css"  -- Additional styling for works page
-  body ! class_ "works-page" $ do
-    navigation 3
-    header $ h1 "Oil Paintings"
-    H.div ! class_ "works-container" $ do
-      H.div ! class_ "works-grid" $
-        mapM_ renderWorkThumbnail (sortWorks allWorks)
-    footer $ p "© 2025 Joe Bloggs Foundation"
-
--- Sort works by catalogue number
-sortWorks :: [Work] -> [Work]
-sortWorks = sortOn catalogueNumber
-
--- Render a single work thumbnail with caption
+-- Work-related components
 renderWorkThumbnail :: Work -> H.Html
 renderWorkThumbnail work =
   H.div ! class_ "work-thumbnail" $ do
@@ -175,7 +115,6 @@ renderWorkThumbnail work =
       workThumbnailImage work
     renderWorkCaption work
 
--- Render the thumbnail image
 workThumbnailImage :: Work -> H.Html
 workThumbnailImage work =
   img
@@ -183,7 +122,6 @@ workThumbnailImage work =
     ! alt (toValue $ "Artwork: " ++ workTitle work)
     ! class_ "work-thumbnail-img"
 
--- Render the caption under each work
 renderWorkCaption :: Work -> H.Html
 renderWorkCaption work =
   H.div ! class_ "work-caption" $ do
@@ -194,35 +132,139 @@ renderWorkCaption work =
         ", "
         toHtml (show (catalogueNumber work))
 
--- Update the main function to use renderWorksPage
+-- Sort works by catalogue number
+sortWorks :: [Work] -> [Work]
+sortWorks = sortOn catalogueNumber
+
+-- Main content for work pages
+mainContent :: Work -> H.Html -> H.Html
+mainContent work contentZ = do
+  H.div ! class_ "grid" $ do
+    -- First column: Image section
+    H.div ! class_ "grid-item" $ do
+      H.div ! class_ "image-container" $
+        workImage work
+    -- Second column: Text section
+    H.div ! class_ "grid-item text-section" $ do
+      contentZ
+
+workImage :: Work -> H.Html
+workImage work =
+  img
+    ! src (toValue $ "images/" ++ show (catalogueNumber work) ++ ".jpg")
+    ! alt (toValue $ "Artwork: " ++ workTitle work)
+    ! class_ "artwork-image"
+
+-- Page configurations
+homePageConfig :: PageConfig
+homePageConfig = PageConfig
+  { pageTitle = "Home"
+  , activeNavIndex = 0
+  , regions =
+      [ NavigationRegion
+      , ContentRegion (\_ ->
+          H.div ! class_ "page-home" $ do
+            H.div $ do
+              h1 artistsName
+              h2 "Online catalogue Raisonné"
+              img ! src "images/sheet_of_studies_recto_1991.217.2.a.jpg" ! width "260px")
+      , FooterRegion
+      ]
+  }
+
+aboutPageConfig :: H.Html -> PageConfig
+aboutPageConfig lor = PageConfig
+  { pageTitle = "About the Online Catalogue Raisonné"
+  , activeNavIndex = 1
+  , regions =
+      [ NavigationRegion
+      , ContentRegion (\c ->
+          H.div ! class_ "flowing-grid text-section" $ do
+            H.div $ do
+              p $ do
+                "About " <> artistsName <> "'s artwork." <> lor
+              c)
+      , FooterRegion
+      ]
+  }
+
+chronologyPageConfig :: PageConfig
+chronologyPageConfig = PageConfig
+  { pageTitle = "Chronology"
+  , activeNavIndex = 2
+  , regions =
+      [ NavigationRegion
+      , ChronologyRegion (\c ->
+          H.div ! class_ "chronology-container" $ do
+            H.div ! class_ "chronology-intro" $ do
+              p "This chronology presents the key events in" <> artistsName <> "'s life and career."
+            H.div ! class_ "chronology-content" $ c)
+      , FooterRegion
+      ]
+  }
+
+worksPageConfig :: [Work] -> PageConfig
+worksPageConfig worksList = PageConfig
+  { pageTitle = "Works"
+  , activeNavIndex = 3
+  , regions =
+      [ NavigationRegion
+      , WorksGridRegion worksList
+      , FooterRegion
+      ]
+  }
+
+searchPageConfig :: PageConfig
+searchPageConfig = PageConfig
+  { pageTitle = "Search the Collection"
+  , activeNavIndex = 4
+  , regions =
+      [ NavigationRegion
+      , FooterRegion
+      ]
+  }
+
+workPageConfig :: Work -> PageConfig
+workPageConfig work = PageConfig
+  { pageTitle = "workTitle work" -- AIS make dynamic.
+  , activeNavIndex = 3  -- Works is active when viewing individual works
+  , regions =
+      [ NavigationRegion
+      , HeaderRegion
+      , PreWorkRegion work
+      , ContentRegion (mainContent work)
+      , FooterRegion
+      ]
+  }
+
+-- Main function
 main :: IO ()
 main = do
   createDirectoryIfMissing True "output"
   lorem <- dummyParagraphs
+  let validWorks = catMaybes works
 
   -- Home/Index
   BL.writeFile "output/index.html" $
-    renderHtml renderHomepage
+    renderHtml (renderPage homePageConfig)
 
   -- About
   BL.writeFile "output/about.html" $
-    renderHtml (renderAbout "About the Online Joe Bloggs Catalogue Raisonné" lorem)
+    renderHtml (renderPage (aboutPageConfig lorem))
 
   -- Chronology
   BL.writeFile "output/chronology.html" $
-    renderHtml (renderChronology lorem)
+    renderHtml (renderPage chronologyPageConfig)
 
-  -- Works - now using renderWorksPage with the sorted works list
-  let validWorks = catMaybes works
+  -- Works
   BL.writeFile "output/works.html" $
-    renderHtml (renderWorksPage validWorks)
+    renderHtml (renderPage (worksPageConfig validWorks))
 
   -- Search
   BL.writeFile "output/search.html" $
-    renderHtml (renderSimpleLayout "Search the Collection" lorem)
+    renderHtml (renderPage searchPageConfig)
 
   -- Individual work pages
   forM_ validWorks $ \work -> do
     let filename = "output/" ++ show (catalogueNumber work) ++ ".html"
-    let mc = mainContent work lorem
-    BL.writeFile filename $ renderHtml $ renderWorkPage work mc
+    BL.writeFile filename $ renderHtml $ renderPage (workPageConfig work)

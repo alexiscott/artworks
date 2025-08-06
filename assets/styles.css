@@ -3,13 +3,14 @@
 :root {
     --dark-black:#000000;
     --off-black:#333333;
-    --highlight:#ff0000;        
+    --highlight:#ff0000;    
 }
 
 body {
   font-family: Arial, sans-serif;
   font-size: 100%;
   margin: 40px;
+  /* background-color: var(--highlight); */
 }
 
 header {

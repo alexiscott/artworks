@@ -3,9 +3,9 @@ all: generate-html
 
 # Create directories and copy resources not really needed.
 prepare-resources:
-	mkdir -p output/images
-	cp styles.css output/
-	cp -r images/* output/images/
+	# mkdir -p output/images
+	# cp styles.css output/
+	# cp -r images/* output/images/
 
 # Generate HTML files
 generate-html:
