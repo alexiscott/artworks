@@ -1,15 +1,13 @@
 {-# LANGUAGE DeriveGeneric  #-}
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module MakeWorks (Work(..), works) where  -- Export Work type and works list.
+module MakeWorks (Work(..), works, worksJson) where
 
 import Data.List (isPrefixOf)
 import Text.Read (readMaybe)
 import Data.Char (isSpace)
 import Data.Aeson
 import GHC.Generics
-import qualified Data.ByteString.Lazy as LB
 import qualified Data.ByteString.Lazy.Char8 as B
 
 instance ToJSON Work
@@ -113,3 +111,5 @@ parsedWork2 = parseWork table2
 
 works :: [Maybe Work]
 works = [parsedWork1, parsedWork2]
+
+worksJson = encode works
