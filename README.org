@@ -1,2 +1,12 @@
-nix develop
-make -k 
+This is an Online Catalogue Raisonné. It is open source and so can be
+used by anyone who can run Nix and Haskell locally.
+
+Benefits
+- Builds statically, so you can run it on any server that will host
+  html files, i.e. GitHub.
+- Uses Lunr.js for frontend searching of artworks, so no need to
+  configure or run separate search software.
+
+* Install and run
+- nix develop
+- make -k 
