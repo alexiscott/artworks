@@ -6,7 +6,7 @@ import Control.Monad (forM_)
 import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (catMaybes)
 import LoremIpsum (dummyParagraphs)
-import MakeWorks (Work (..), works)
+import MakeWorks (Work (..), works, worksJson)
 import System.Directory (createDirectoryIfMissing)
 import Text.Blaze.Html.Renderer.Utf8 (renderHtml)
 import Text.Blaze.Html5 as H hiding (main, map)
@@ -220,6 +220,12 @@ searchPageConfig = PageConfig
   , activeNavIndex = 4
   , regions =
       [ NavigationRegion
+      , ContentRegion (\c ->
+          H.div ! class_ "flowing-grid text-section" $ do
+            H.div $ do
+              p $ do
+                "Search around"
+              c)
       , FooterRegion
       ]
   }
@@ -263,6 +269,9 @@ main = do
   -- Search
   BL.writeFile "output/search.html" $
     renderHtml (renderPage searchPageConfig)
+    <> "<script>"
+    <> worksJson
+    <> "</script>"
 
   -- Individual work pages
   forM_ validWorks $ \work -> do
