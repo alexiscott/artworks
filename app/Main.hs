@@ -2,7 +2,7 @@
 
 module Main where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
 import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (catMaybes)
 import LoremIpsum (dummyParagraphs)
@@ -53,7 +53,10 @@ renderPage config = docTypeHtml $ do
     link ! rel "stylesheet" ! href "styles.css"
     link ! rel "stylesheet" ! href "grid.css"
     link ! rel "stylesheet" ! href "works.css" -- Possibly make specific.
-    -- Additional stylesheets can be added conditionally here
+    -- when (activeNavIndex config == 4) $ do
+    --   script ! type_ "application/javascript" $ "works=" <> toHtml worksJson
+    --   script ! src "lunr.js.js" ! type_ "application/javascript" $ ""
+    --   script ! src "search.js" ! type_ "application/javascript" $ ""
   body ! class_ "page" $ do
     mapM_ renderRegion (regions config)
     where
@@ -94,7 +97,13 @@ renderPage config = docTypeHtml $ do
           H.div ! class_ "chronology-region" $ contentFn "lorem"
 
         FooterRegion ->
-          footer ! class_ "footer-region" $ p ("© 2025 " <> artistsName <> " Foundation")
+          footer ! class_ "footer-region" $ do
+            p ("© 2025 " <> artistsName <> " Foundation")
+            when (activeNavIndex config == 4) $ do
+              script ! type_ "application/javascript" $ "works=" <> toHtml worksJson
+              script ! src "lunr.js.js" ! type_ "application/javascript" $ ""
+              script ! src "search.js" ! type_ "application/javascript" $ ""
+
 
 -- Navigation component
 navigation :: Int -> Html
@@ -220,12 +229,16 @@ searchPageConfig = PageConfig
   , activeNavIndex = 4
   , regions =
       [ NavigationRegion
-      , ContentRegion (\c ->
-          H.div ! class_ "flowing-grid text-section" $ do
-            H.div $ do
-              p $ do
-                "Search around"
-              c)
+      , ContentRegion (\_ ->
+          H.div ! class_ "search-works" $ do
+            h2 "Search Works"
+            H.input
+              ! type_ "text"
+              ! A.id "searchBox"
+              ! placeholder "Search by title, date, medium..."
+              ! A.style "width: 100%; padding: 8px;"
+            H.div ! A.id "results" $ ""
+          )
       , FooterRegion
       ]
   }
@@ -269,9 +282,6 @@ main = do
   -- Search
   BL.writeFile "output/search.html" $
     renderHtml (renderPage searchPageConfig)
-    <> "<script>"
-    <> worksJson
-    <> "</script>"
 
   -- Individual work pages
   forM_ validWorks $ \work -> do

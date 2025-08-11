@@ -10,6 +10,7 @@ import Data.Aeson
 import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as B
 
+
 instance ToJSON Work
 
 -- Define the Work data type
@@ -75,7 +76,7 @@ parseWork s = do
 
 table1 :: String
 table1 = unlines
-  [ "| A unique Catalogue Raisonné number | 1001                                                                       | Int |"
+  [ "| A unique Catalogue Raisonné number | 1                                                                       | Int |"
   , "| The title of the work              | Abstract Composition No. 5                                                       | Str |"
   , "| Date                               | 1947                                                                             | Str |"
   , "| Medium                             | Oil and sand on masonite                                                         | Str |"
@@ -89,7 +90,7 @@ table1 = unlines
 
 table2 :: String
 table2 = unlines
-  [ "| A unique Catalogue Raisonné number | 1002                                                                       | Int |"
+  [ "| A unique Catalogue Raisonné number | 2                                                                       | Int |"
   , "| The title of the work              | Urban Fragment                                                                    | Str |"
   , "| Date                               | 1948                                                                             | Str |"
   , "| Medium                             | Mixed media on board                                                             | Str |"
@@ -112,4 +113,5 @@ parsedWork2 = parseWork table2
 works :: [Maybe Work]
 works = [parsedWork1, parsedWork2]
 
-worksJson = encode works
+worksJson :: [Char]
+worksJson = B.unpack $ encode works
